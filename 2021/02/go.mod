@@ -1,4 +1,4 @@
-module github.com/lcsanchez/advent-of-code/2021/01
+module github.com/lcsanchez/advent-of-code/2021/04
 
 go 1.17
 
