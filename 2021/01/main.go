@@ -2,28 +2,19 @@ package main
 
 import (
 	"bufio"
+	"bytes"
+	_ "embed"
+	"io"
 	"log"
-	"os"
 	"strconv"
 )
 
-func main() {
-	file, err := os.Open("input.txt")
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer file.Close()
+//go:embed testdata/input.txt
+var inputBytes []byte
 
-	nums := make([]int, 0)
-	scanner := bufio.NewScanner(file)
-	for scanner.Scan() {
-		i, err := strconv.Atoi(scanner.Text())
-		if err != nil {
-			log.Fatal(err)
-		}
-		nums = append(nums, i)
-	}
-	if err := scanner.Err(); err != nil {
+func main() {
+	nums, err := readNums(bytes.NewReader(inputBytes))
+	if err != nil {
 		log.Fatal(err)
 	}
 
@@ -32,6 +23,24 @@ func main() {
 
 	count = countDepthGroupIncrease(nums, 3)
 	log.Println(count)
+}
+
+func readNums(r io.Reader) ([]int, error) {
+	nums := make([]int, 0)
+	scanner := bufio.NewScanner(r)
+	for scanner.Scan() {
+		i, err := strconv.Atoi(scanner.Text())
+		if err != nil {
+			return nil, err
+		}
+		nums = append(nums, i)
+	}
+
+	if err := scanner.Err(); err != nil {
+		return nil, err
+	}
+
+	return nums, nil
 }
 
 func countDepthIncrease(nums []int) int {
