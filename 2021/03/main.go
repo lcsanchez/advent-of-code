@@ -2,59 +2,54 @@ package main
 
 import (
 	"bufio"
+	"bytes"
+	_ "embed"
 	"fmt"
+	"io"
 	"log"
-	"os"
 	"sort"
 	"strconv"
 )
 
-type RatingFilterFunc func(report []string, pivot int) []string
-
-func O2RatingFilterFunc(report []string, pivot int) []string {
-	if (len(report) - pivot) < pivot {
-		return report[:pivot]
-	}
-
-	return report[pivot:]
-}
-
-func CO2RatingFilterFunc(report []string, pivot int) []string {
-	if (len(report) - pivot) < pivot {
-		return report[pivot:]
-	}
-
-	return report[:pivot]
-}
+//go:embed testdata/input.txt
+var input []byte
 
 func main() {
-	file, err := os.Open("input.txt")
+	// Part 01
+	powerConsumption, err := calculatePowerConsumption(bytes.NewReader(input))
 	if err != nil {
 		log.Fatal(err)
 	}
-	defer file.Close()
-
-	report := make([]string, 0)
-	scanner := bufio.NewScanner(file)
-	for scanner.Scan() {
-		s := scanner.Text()
-		report = append(report, s)
-	}
-	if err := scanner.Err(); err != nil {
-		log.Fatal(err)
-	}
-
-	powerConsumption := calculatePowerConsumption(report)
 	fmt.Println(powerConsumption)
 
-	lifeSupportRating, err := calculateLifeSupportRating(report)
+	// Part 02
+	lifeSupportRating, err := calculateLifeSupportRating(bytes.NewReader(input))
 	if err != nil {
 		log.Fatal(err)
 	}
 	fmt.Println(lifeSupportRating)
 }
 
-func calculatePowerConsumption(report []string) int {
+func readReport(r io.Reader) ([]string, error) {
+	report := make([]string, 0)
+	scanner := bufio.NewScanner(r)
+	for scanner.Scan() {
+		s := scanner.Text()
+		report = append(report, s)
+	}
+	if err := scanner.Err(); err != nil {
+		return nil, err
+	}
+
+	return report, nil
+}
+
+func calculatePowerConsumption(r io.Reader) (int, error) {
+	report, err := readReport(r)
+	if err != nil {
+		return 0, err
+	}
+
 	bitCount := len(report[0])
 	bitTracker := make([]int, bitCount)
 
@@ -75,10 +70,33 @@ func calculatePowerConsumption(report []string) int {
 		}
 	}
 
-	return gamma * epsilon
+	return gamma * epsilon, nil
 }
 
-func calculateLifeSupportRating(report []string) (int, error) {
+type RatingFilterFunc func(report []string, pivot int) []string
+
+func O2RatingFilterFunc(report []string, pivot int) []string {
+	if (len(report) - pivot) < pivot {
+		return report[:pivot]
+	}
+
+	return report[pivot:]
+}
+
+func CO2RatingFilterFunc(report []string, pivot int) []string {
+	if (len(report) - pivot) < pivot {
+		return report[pivot:]
+	}
+
+	return report[:pivot]
+}
+
+func calculateLifeSupportRating(r io.Reader) (int, error) {
+	report, err := readReport(r)
+	if err != nil {
+		return 0, err
+	}
+
 	sort.Strings(report)
 
 	oxygenRating, err := calculateRating(report, 0, O2RatingFilterFunc)
