@@ -47,5 +47,5 @@ func TestReadInput(t *testing.T) {
 			},
 		},
 	}
-	require.NotNil(t, wantBoards, boards)
+	require.Equal(t, wantBoards, boards)
 }
