@@ -5,6 +5,7 @@ import (
 	_ "embed"
 	"testing"
 
+	"github.com/google/go-cmp/cmp"
 	"github.com/stretchr/testify/require"
 )
 
@@ -47,5 +48,8 @@ func TestReadInput(t *testing.T) {
 			},
 		},
 	}
-	require.Equal(t, wantBoards, boards)
+
+	if diff := cmp.Diff(wantBoards, boards); diff != "" {
+		t.Errorf("mismatch (-want +got):\n%s", diff)
+	}
 }
