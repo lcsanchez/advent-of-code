@@ -53,3 +53,21 @@ func TestReadInput(t *testing.T) {
 		t.Errorf("mismatch (-want +got):\n%s", diff)
 	}
 }
+
+func TestPlayBingo(t *testing.T) {
+	moves, boards, err := readInput(bytes.NewReader(testInput))
+	require.NoError(t, err)
+
+	got := playBingo(moves, boards)
+
+	require.Equal(t, 4512, got)
+}
+
+func TestFindLosingBoard(t *testing.T) {
+	moves, boards, err := readInput(bytes.NewReader(testInput))
+	require.NoError(t, err)
+
+	got := findLosingBoard(moves, boards)
+
+	require.Equal(t, 1924, got)
+}
