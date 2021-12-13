@@ -5,12 +5,22 @@ import (
 	_ "embed"
 	"fmt"
 	"io"
+	"math"
 	"strconv"
 	"strings"
 )
 
 //go:embed testdata/input.txt
 var input []byte
+
+type Point struct {
+	X, Y int
+}
+
+type Line struct {
+	Start *Point
+	End   *Point
+}
 
 func main() {
 
@@ -57,11 +67,12 @@ func readPoint(s string) (*Point, error) {
 	return &Point{X: x, Y: y}, nil
 }
 
-type Point struct {
-	X, Y int
-}
+func calculateBoardMaxPoint(lines []*Line) *Point {
+	maxX, maxY := 0, 0
+	for _, line := range lines {
+		maxX = int(math.Max(float64(maxX), math.Max(float64(line.Start.X), float64(line.End.X))))
+		maxY = int(math.Max(float64(maxY), math.Max(float64(line.Start.Y), float64(line.End.Y))))
+	}
 
-type Line struct {
-	Start *Point
-	End   *Point
+	return &Point{X: maxX, Y: maxY}
 }

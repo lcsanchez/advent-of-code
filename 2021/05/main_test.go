@@ -33,3 +33,11 @@ func TestReadInput(t *testing.T) {
 		{Start: &Point{X: 5, Y: 5}, End: &Point{X: 8, Y: 2}},
 	}, lines)
 }
+
+func TestCalculateBoardDimensions(t *testing.T) {
+	lines, err := readInput(bytes.NewReader(testInput))
+	require.NoError(t, err)
+
+	point := calculateBoardMaxPoint(lines)
+	require.Equal(t, &Point{X: 9, Y: 9}, point)
+}
