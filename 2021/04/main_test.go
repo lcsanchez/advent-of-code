@@ -19,7 +19,7 @@ func TestReadInput(t *testing.T) {
 	wantMoves := []int{7, 4, 9, 5, 11, 17, 23, 2, 0, 14, 21, 24, 10, 16, 13, 6, 15, 25, 12, 22, 18, 20, 8, 19, 3, 26, 1}
 	require.Equal(t, wantMoves, moves)
 
-	wantBoards := []Board{
+	wantBoards := []*Board{
 		{
 			Spaces: [][]*Space{
 				{{Num: 22}, {Num: 13}, {Num: 17}, {Num: 11}, {Num: 0}},
