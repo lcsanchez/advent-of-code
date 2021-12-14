@@ -41,3 +41,47 @@ func TestCalculateBoardDimensions(t *testing.T) {
 	point := calculateBoardMaxPoint(lines)
 	require.Equal(t, &Point{X: 9, Y: 9}, point)
 }
+
+func TestDrawLines(t *testing.T) {
+	lines, err := readInput(bytes.NewReader(testInput))
+	require.NoError(t, err)
+
+	maxPoint := calculateBoardMaxPoint(lines)
+	grid := initializeGrid(maxPoint.X, maxPoint.Y)
+
+	drawLines(grid, lines, true)
+	require.Equal(t, [][]int{
+		{0, 0, 0, 0, 0, 0, 0, 1, 0, 0},
+		{0, 0, 1, 0, 0, 0, 0, 1, 0, 0},
+		{0, 0, 1, 0, 0, 0, 0, 1, 0, 0},
+		{0, 0, 0, 0, 0, 0, 0, 1, 0, 0},
+		{0, 1, 1, 2, 1, 1, 1, 2, 1, 1},
+		{0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+		{0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+		{0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+		{0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+		{2, 2, 2, 1, 1, 1, 0, 0, 0, 0},
+	}, grid)
+}
+
+func TestFindOverlappingCount(t *testing.T) {
+	lines, err := readInput(bytes.NewReader(testInput))
+	require.NoError(t, err)
+
+	maxPoint := calculateBoardMaxPoint(lines)
+	grid := initializeGrid(maxPoint.X, maxPoint.Y)
+
+	drawLines(grid, lines, true)
+	require.Equal(t, 5, findOverlappingCount(grid))
+}
+
+func TestFindOverlappingCountWithDiagonals(t *testing.T) {
+	lines, err := readInput(bytes.NewReader(testInput))
+	require.NoError(t, err)
+
+	maxPoint := calculateBoardMaxPoint(lines)
+	grid := initializeGrid(maxPoint.X, maxPoint.Y)
+
+	drawLines(grid, lines, false)
+	require.Equal(t, 12, findOverlappingCount(grid))
+}
