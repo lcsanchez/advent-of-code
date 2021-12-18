@@ -14,6 +14,11 @@ import (
 //go:embed testdata/input.txt
 var input []byte
 
+const (
+	AdultLifecycleDays    = 6
+	OffspingLifecycleDays = 8
+)
+
 func main() {
 	input, err := readInput(bytes.NewReader(input))
 	if err != nil {
@@ -31,7 +36,7 @@ func readInput(r io.Reader) ([][]int, error) {
 
 	for scanner.Scan() {
 		s := scanner.Text()
-		fishDay := make([]int, 9)
+		fishDay := make([]int, OffspingLifecycleDays+1)
 		nums := strings.Split(s, ",")
 		for _, n := range nums {
 			num, err := strconv.Atoi(n)
@@ -66,8 +71,8 @@ func calculateFishAfterOneDay(fish []int) {
 		fish[i] = 0
 	}
 
-	fish[6] += f
-	fish[8] += f
+	fish[AdultLifecycleDays] += f
+	fish[OffspingLifecycleDays] += f
 }
 
 func countTotalFish(fish []int) int {
