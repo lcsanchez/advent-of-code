@@ -29,3 +29,8 @@ func TestReadInput(t *testing.T) {
 	require.NoError(t, err)
 	require.Equal(t, expectedInput, got)
 }
+
+func TestCalculateTotalPoints(t *testing.T) {
+	got := calculateTotalPoints(expectedInput)
+	require.Equal(t, 26397, got)
+}
