@@ -26,16 +26,16 @@ func TestReadInput(t *testing.T) {
 
 func TestIsLowPoint(t *testing.T) {
 	type test struct {
-		position *Point
+		position Point
 		expected bool
 	}
 
 	tests := []test{
-		{position: &Point{X: 0, Y: 0}, expected: false},
-		{position: &Point{X: 1, Y: 0}, expected: true},
-		{position: &Point{X: 1, Y: 1}, expected: false},
-		{position: &Point{X: 9, Y: 0}, expected: true},
-		{position: &Point{X: 6, Y: 4}, expected: true},
+		{position: Point{X: 0, Y: 0}, expected: false},
+		{position: Point{X: 1, Y: 0}, expected: true},
+		{position: Point{X: 1, Y: 1}, expected: false},
+		{position: Point{X: 9, Y: 0}, expected: true},
+		{position: Point{X: 6, Y: 4}, expected: true},
 	}
 
 	for _, tc := range tests {
@@ -56,19 +56,19 @@ func TestFindThreeLargestBasinMultiple(t *testing.T) {
 
 func TestFindBasinSize(t *testing.T) {
 	type test struct {
-		position *Point
+		position Point
 		expected int
 	}
 
 	tests := []test{
-		{position: &Point{X: 1, Y: 0}, expected: 3},
-		{position: &Point{X: 9, Y: 0}, expected: 9},
-		{position: &Point{X: 2, Y: 2}, expected: 14},
-		{position: &Point{X: 6, Y: 4}, expected: 9},
+		{position: Point{X: 1, Y: 0}, expected: 3},
+		{position: Point{X: 9, Y: 0}, expected: 9},
+		{position: Point{X: 2, Y: 2}, expected: 14},
+		{position: Point{X: 6, Y: 4}, expected: 9},
 	}
 
 	for _, tc := range tests {
-		basin := map[string]*Point{tc.position.HashCode(): tc.position}
+		basin := map[Point]bool{tc.position: true}
 		findBasinSize(expectedCave, tc.position, basin)
 		require.Equal(t, tc.expected, len(basin))
 	}

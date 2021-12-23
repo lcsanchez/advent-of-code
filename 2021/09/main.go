@@ -16,7 +16,7 @@ var input []byte
 
 type Cave [][]int
 
-func (c Cave) Get(p *Point) (int, bool) {
+func (c Cave) Get(p Point) (int, bool) {
 	if len(c) == 0 {
 		return 0, false
 	}
@@ -33,20 +33,16 @@ type Point struct {
 	X, Y int
 }
 
-func (p *Point) Add(o *Point) *Point {
-	return &Point{X: p.X + o.X, Y: p.Y + o.Y}
-}
-
-func (p *Point) HashCode() string {
-	return fmt.Sprintf("%d,%d", p.X, p.Y)
+func (p Point) Add(o Point) Point {
+	return Point{X: p.X + o.X, Y: p.Y + o.Y}
 }
 
 var (
-	TOP             = &Point{Y: -1}
-	BOTTOM          = &Point{Y: 1}
-	LEFT            = &Point{X: -1}
-	RIGHT           = &Point{X: 1}
-	ADJACENT_POINTS = []*Point{TOP, BOTTOM, LEFT, RIGHT}
+	TOP             = Point{Y: -1}
+	BOTTOM          = Point{Y: 1}
+	LEFT            = Point{X: -1}
+	RIGHT           = Point{X: 1}
+	ADJACENT_POINTS = []Point{TOP, BOTTOM, LEFT, RIGHT}
 )
 
 func main() {
@@ -87,7 +83,7 @@ func findRiskLevelSum(cave Cave) int {
 	sum := 0
 	for rowIdx, row := range cave {
 		for colIdx, num := range row {
-			if isLowPoint(cave, &Point{X: colIdx, Y: rowIdx}) {
+			if isLowPoint(cave, Point{X: colIdx, Y: rowIdx}) {
 				sum += num + 1
 			}
 		}
@@ -96,7 +92,7 @@ func findRiskLevelSum(cave Cave) int {
 	return sum
 }
 
-func isLowPoint(cave Cave, position *Point) bool {
+func isLowPoint(cave Cave, position Point) bool {
 	currentValue, _ := cave.Get(position)
 
 	for _, p := range ADJACENT_POINTS {
@@ -117,9 +113,9 @@ func findThreeLargestBasinMultiple(cave Cave) int {
 	basinSizes := []int{}
 	for rowIdx, row := range cave {
 		for colIdx, _ := range row {
-			current := &Point{X: colIdx, Y: rowIdx}
+			current := Point{X: colIdx, Y: rowIdx}
 			if isLowPoint(cave, current) {
-				basin := map[string]*Point{current.HashCode(): current}
+				basin := map[Point]bool{current: true}
 				findBasinSize(cave, current, basin)
 
 				basinSizes = append(basinSizes, len(basin))
@@ -133,12 +129,12 @@ func findThreeLargestBasinMultiple(cave Cave) int {
 	return basinSizes[0] * basinSizes[1] * basinSizes[2]
 }
 
-func findBasinSize(cave Cave, position *Point, basin map[string]*Point) {
+func findBasinSize(cave Cave, position Point, basin map[Point]bool) {
 	currentValue, _ := cave.Get(position)
 
 	for _, p := range ADJACENT_POINTS {
 		posToCheck := position.Add(p)
-		if _, ok := basin[posToCheck.HashCode()]; ok {
+		if _, ok := basin[posToCheck]; ok {
 			continue
 		}
 
@@ -148,7 +144,7 @@ func findBasinSize(cave Cave, position *Point, basin map[string]*Point) {
 		}
 
 		if value > currentValue {
-			basin[posToCheck.HashCode()] = posToCheck
+			basin[posToCheck] = true
 			findBasinSize(cave, posToCheck, basin)
 		}
 	}
