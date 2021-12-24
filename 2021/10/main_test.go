@@ -34,3 +34,8 @@ func TestCalculateTotalPoints(t *testing.T) {
 	got := calculateTotalPoints(expectedInput)
 	require.Equal(t, 26397, got)
 }
+
+func TestCalculateMiddleMissingCloserScore(t *testing.T) {
+	got := calculateMiddleMissingCloserScore(expectedInput)
+	require.Equal(t, 288957, got)
+}

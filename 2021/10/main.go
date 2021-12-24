@@ -7,21 +7,29 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"sort"
 )
 
 //go:embed testdata/input.txt
 var input []byte
 
-type Closer struct {
-	Points int
-	Opener rune
+type Balancer struct {
+	Points  int
+	Balance rune
 }
 
-var CLOSING_RUNES = map[rune]Closer{
-	')': {Points: 3, Opener: '('},
-	']': {Points: 57, Opener: '['},
-	'}': {Points: 1197, Opener: '{'},
-	'>': {Points: 25137, Opener: '<'},
+var CLOSING_RUNES = map[rune]Balancer{
+	')': {Points: 3, Balance: '('},
+	']': {Points: 57, Balance: '['},
+	'}': {Points: 1197, Balance: '{'},
+	'>': {Points: 25137, Balance: '<'},
+}
+
+var OPENING_RUNES = map[rune]Balancer{
+	'(': {Points: 1, Balance: ')'},
+	'[': {Points: 2, Balance: ']'},
+	'{': {Points: 3, Balance: '}'},
+	'<': {Points: 4, Balance: '>'},
 }
 
 func main() {
@@ -31,7 +39,7 @@ func main() {
 	}
 
 	fmt.Println(calculateTotalPoints(input))
-
+	fmt.Println(calculateMiddleMissingCloserScore(input))
 }
 
 func readInput(r io.Reader) ([]string, error) {
@@ -61,7 +69,7 @@ func calculatePoints(line string) int {
 	s := NewStack()
 	for _, r := range line {
 		if closer, ok := CLOSING_RUNES[r]; ok {
-			if s.Peek() != closer.Opener {
+			if s.Peek() != closer.Balance {
 				return closer.Points
 			}
 
@@ -73,6 +81,55 @@ func calculatePoints(line string) int {
 	}
 
 	return 0
+}
+
+func calculateMiddleMissingCloserScore(lines []string) int {
+	scores := []int{}
+
+	for _, line := range lines {
+		s, ok := calculateMissingClosers(line)
+		if !ok {
+			continue
+		}
+
+		scores = append(scores, calculateMissingCloserScore(s))
+	}
+
+	sort.Ints(scores)
+
+	return scores[len(scores)/2]
+}
+
+func calculateMissingClosers(line string) (*Stack, bool) {
+	s := NewStack()
+	for _, r := range line {
+		if closer, ok := CLOSING_RUNES[r]; ok {
+			if s.Peek() != closer.Balance {
+				return nil, false
+			}
+
+			s.Pop()
+			continue
+		}
+
+		s.Push(r)
+	}
+
+	return s, true
+}
+
+func calculateMissingCloserScore(s *Stack) int {
+	score := 0
+	for {
+		r, ok := s.Pop()
+		if !ok {
+			break
+		}
+
+		score = score*5 + OPENING_RUNES[r].Points
+	}
+
+	return score
 }
 
 func NewStack() *Stack {
