@@ -26,13 +26,13 @@ type Path struct {
 
 type Node struct {
 	Label string
-	Nodes map[string]*Node
+	Nodes []*Node
 }
 
 func NewNode(label string) *Node {
 	return &Node{
 		Label: label,
-		Nodes: make(map[string]*Node),
+		Nodes: make([]*Node, 0),
 	}
 }
 
@@ -43,7 +43,14 @@ func main() {
 	}
 
 	start := createCave(input)
+
+	// Part 01
 	paths := make([][]*Node, 0)
+	findPath(start, []*Node{start}, map[string]int{START: 1}, &paths, false)
+	fmt.Println(len(paths))
+
+	// Part 02
+	paths = make([][]*Node, 0)
 	findPath(start, []*Node{start}, map[string]int{START: 1}, &paths, true)
 	fmt.Println(len(paths))
 }
@@ -90,14 +97,14 @@ func createCave(paths []*Path) *Node {
 			nodesByLabel[path.b] = bNode
 		}
 
-		aNode.Nodes[bNode.Label] = bNode
-		bNode.Nodes[aNode.Label] = aNode
+		aNode.Nodes = append(aNode.Nodes, bNode)
+		bNode.Nodes = append(bNode.Nodes, aNode)
 	}
 
 	return start
 }
 
-func findPath(current *Node, visited []*Node, visitedMap map[string]int, paths *[][]*Node, allowMultipleVisits bool) {
+func findPath(current *Node, visited []*Node, visitedMap map[string]int, paths *[][]*Node, allowSecondVisit bool) {
 	if current.Label == END {
 		path := make([]*Node, len(visited))
 		copy(path, visited)
@@ -108,11 +115,11 @@ func findPath(current *Node, visited []*Node, visitedMap map[string]int, paths *
 	for _, next := range current.Nodes {
 		var isSecondVisit bool
 		if _, ok := visitedMap[next.Label]; ok {
-			if !allowMultipleVisits || next.Label == START {
+			if !allowSecondVisit || next.Label == START {
 				continue
 			}
 			isSecondVisit = true
-			allowMultipleVisits = false
+			allowSecondVisit = false
 		}
 
 		visited = append(visited, next)
@@ -121,7 +128,7 @@ func findPath(current *Node, visited []*Node, visitedMap map[string]int, paths *
 			visitedMap[next.Label]++
 		}
 
-		findPath(next, visited, visitedMap, paths, allowMultipleVisits)
+		findPath(next, visited, visitedMap, paths, allowSecondVisit)
 
 		visited = visited[:len(visited)-1]
 		if i, ok := visitedMap[next.Label]; ok {
@@ -133,7 +140,7 @@ func findPath(current *Node, visited []*Node, visitedMap map[string]int, paths *
 		}
 
 		if isSecondVisit {
-			allowMultipleVisits = true
+			allowSecondVisit = true
 		}
 	}
 }
