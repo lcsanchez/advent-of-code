@@ -20,14 +20,18 @@ type Input struct {
 
 type Rule struct {
 	Match  string
-	Insert string
+	Insert rune
 }
 
 func main() {
-	_, err := readInput(bytes.NewReader(input))
+	input, err := readInput(bytes.NewReader(input))
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	min, max := applyPolymer(input.Template, input.Rules, 40)
+
+	fmt.Println(max - min)
 }
 
 func readInput(r io.Reader) (*Input, error) {
@@ -70,6 +74,83 @@ func readRule(s string) (*Rule, error) {
 
 	return &Rule{
 		Match:  parts[0],
-		Insert: parts[1],
+		Insert: []rune(parts[1])[0],
 	}, nil
+}
+
+func applyPolymer(template string, rules []*Rule, times int) (int, int) {
+	ruleMap := map[string]rune{}
+
+	for _, rule := range rules {
+		ruleMap[rule.Match] = rule.Insert
+	}
+
+	pairs := createPairs(template)
+
+	for i := 0; i < times; i++ {
+		newPairs := map[string]int{}
+		for pair, count := range pairs {
+			if insert, ok := ruleMap[pair]; ok {
+				runePair := []rune(pair)
+
+				newFirstPair := string([]rune{runePair[0], insert})
+				newSecondPair := string([]rune{insert, runePair[1]})
+
+				newPairs[newFirstPair] += count
+				newPairs[newSecondPair] += count
+			} else {
+				newPairs[pair] += pairs[pair]
+			}
+		}
+
+		pairs = newPairs
+	}
+
+	runeCount := pairsToRuneCount(pairs)
+
+	// we need to also account for the last char in the template
+	runeCount[[]rune(template)[len(template)-1]]++
+
+	return minMaxRuneCount(runeCount)
+}
+
+func createPairs(s string) map[string]int {
+	pairs := map[string]int{}
+
+	var previous rune
+	for _, r := range s {
+		if previous != 0 {
+			pairs[string([]rune{previous, r})]++
+		}
+		previous = r
+	}
+
+	return pairs
+}
+
+func pairsToRuneCount(pairs map[string]int) map[rune]int {
+	runeCount := map[rune]int{}
+
+	for pair, count := range pairs {
+		runes := []rune(pair)
+
+		runeCount[runes[0]] += count
+	}
+
+	return runeCount
+}
+
+func minMaxRuneCount(runes map[rune]int) (int, int) {
+	var max, min int
+	for _, value := range runes {
+		if min == 0 || min > value {
+			min = value
+		}
+
+		if value > max {
+			max = value
+		}
+	}
+
+	return min, max
 }
